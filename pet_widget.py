@@ -3,7 +3,7 @@ from PyQt5.QtGui import QMovie
 from PyQt5.QtCore import Qt, QPoint, QTime
 from ui.ui_pet import Ui_Form  # 引入 UI 文件
 from tray_icon import create_tray_icon
-from config import GIF_PATH, INTERACT_PATH, PET_SIZE, RELAX_SPEED, INTERACT_SPEED
+from config import RELAX_PATH, INTERACT_PATH, PET_SIZE, RELAX_SPEED, INTERACT_SPEED
 
 class DesktopPet(QWidget, Ui_Form):
     def __init__(self):
@@ -15,7 +15,7 @@ class DesktopPet(QWidget, Ui_Form):
         self.setAttribute(Qt.WA_TranslucentBackground)
 
         # **加载 GIF**
-        self.relax_gif = QMovie(GIF_PATH)
+        self.relax_gif = QMovie(RELAX_PATH)
         self.relax_gif.setScaledSize(self.label_pet.size())
         self.relax_gif.setSpeed(RELAX_SPEED)
 
