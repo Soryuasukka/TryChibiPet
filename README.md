@@ -1,9 +1,5 @@
 # TryChibiPet
 try to make desktop chibi pet! Unnamed yet...
 
-# First time try to make a chibi pet based on Arknights character.
-## STEP 1 
-Prepare the pics.
-
-## STEP 2
-Put it in a QLabel and adjust the sizes.
+做完了！用了蒂蒂的模型做了一个小桌宠
+太可爱了。请去master分支下载！
