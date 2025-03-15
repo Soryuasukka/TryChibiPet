@@ -16,11 +16,14 @@
   <widget class="QLabel" name="label_pet">
    <property name="geometry">
     <rect>
-     <x>420</x>
-     <y>320</y>
-     <width>101</width>
-     <height>101</height>
+     <x>214</x>
+     <y>244</y>
+     <width>331</width>
+     <height>291</height>
     </rect>
+   </property>
+   <property name="mouseTracking">
+    <bool>false</bool>
    </property>
    <property name="autoFillBackground">
     <bool>false</bool>
@@ -28,8 +31,17 @@
    <property name="text">
     <string/>
    </property>
+   <property name="scaledContents">
+    <bool>false</bool>
+   </property>
    <property name="alignment">
-    <set>Qt::AlignCenter</set>
+    <set>Qt::AlignBottom|Qt::AlignHCenter</set>
+   </property>
+   <property name="wordWrap">
+    <bool>false</bool>
+   </property>
+   <property name="openExternalLinks">
+    <bool>false</bool>
    </property>
   </widget>
  </widget>
