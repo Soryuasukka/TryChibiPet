@@ -1,8 +1,9 @@
 from PyQt5.QtWidgets import QWidget, QLabel, QMenu, QAction, QSystemTrayIcon
 from PyQt5.QtGui import QMovie, QIcon
 from PyQt5.QtCore import Qt, QPoint
-from PyQt5.QtCore import QSize  # 导入 QSize
-from config import RELAX_PATH, INTERACT_PATH, STAND_PATH, SIT_PATH, SLEEP_PATH, PET_SIZE, RELAX_SPEED, INTERACT_SPEED,DIE_PATH,SCALE_FACTOR
+from PyQt5.QtCore import QSize, QTimer # 导入 QSize
+import random
+from config import RELAX_PATH, INTERACT_PATH, STAND_PATH, SIT_PATH, SLEEP_PATH, PET_SIZE, RELAX_SPEED, INTERACT_SPEED, DIE_PATH, SCALE_FACTOR
 
 class DesktopPet(QWidget):
     def __init__(self):
@@ -24,10 +25,22 @@ class DesktopPet(QWidget):
         self.sk2_begin_gif = self.load_gif("pics/sk2begin.gif", RELAX_SPEED)  # 加载漂浮开始动画
         self.sk2_gif = self.load_gif("pics/sk2.gif", RELAX_SPEED)  # 加载漂浮循环动画
         self.sk3_gif = self.load_gif("pics/sk3.gif", RELAX_SPEED)  # 加载治愈动画
+        # 加载 move.gif
+        self.move_gif = self.load_gif("pics/move.gif", RELAX_SPEED)  # 加载移动动画
 
         # 设置初始状态
         self.current_gif = self.relax_gif
         self.set_gif(self.relax_gif)
+
+        # 其他初始化代码...
+
+        # 定时器
+        self.idle_timer = QTimer(self)
+        self.idle_timer.timeout.connect(self.switch_to_move)  # 定时器触发时切换到 move.gif
+
+        # 如果初始状态是站立状态，启动定时器
+        if self.current_gif == self.relax_gif:
+            self.start_idle_timer()  # 启动定时器，并设置随机时间
 
         # 右键菜单
         self.context_menu = QMenu(self)
@@ -43,6 +56,11 @@ class DesktopPet(QWidget):
         self.offset = QPoint()
 
     from config import SCALE_FACTOR  # 导入缩放比例
+
+    def start_idle_timer(self):
+        """启动定时器，并设置随机时间（20-40 秒）"""
+        random_duration = random.randint(20000, 40000)  # 20-40 秒（单位：毫秒）
+        self.idle_timer.start(random_duration)
 
     def load_gif(self, path, speed):
         """加载 GIF 并等比例缩小"""
@@ -92,7 +110,6 @@ class DesktopPet(QWidget):
         self.context_menu.addAction(self.heal_action)  # 添加治愈选项
         self.context_menu.addAction(self.hide_action)
 
-
     def contextMenuEvent(self, event):
         """右键点击时弹出菜单"""
         self.update_context_menu()
@@ -111,12 +128,21 @@ class DesktopPet(QWidget):
 
     def change_state(self, gif, action):
         """切换状态"""
-        if gif == self.sk2_gif:  # 如果是漂浮状态
-            self.play_sk2_sequence()  # 播放漂浮序列动画
+        if gif == self.relax_gif:  # 如果是站立状态
+            if not self.idle_timer.isActive():  # 如果定时器未启动
+                self.start_idle_timer()  # 启动定时器，并设置随机时间
         else:  # 其他状态
-            self.current_gif = gif
-            self.set_gif(gif)
+            self.idle_timer.stop()  # 停止定时器
+
+        self.current_gif = gif
+        self.set_gif(gif)
         self.update_context_menu()
+
+    def switch_to_move(self):
+        """切换到移动状态"""
+        if self.current_gif == self.relax_gif:  # 只有在站立状态下才切换
+            self.current_gif = self.move_gif
+            self.set_gif(self.move_gif)
 
     def play_sk2_sequence(self):
         """播放漂浮序列动画（sk2begin.gif -> sk2.gif）"""
@@ -176,6 +202,7 @@ class DesktopPet(QWidget):
         if event.button() == Qt.LeftButton:
             self.dragging = True
             self.offset = event.globalPos() - self.pos()
+
     def mouseMoveEvent(self, event):
         """鼠标拖动桌宠"""
         if self.dragging:
@@ -186,9 +213,10 @@ class DesktopPet(QWidget):
         if event.button() == Qt.LeftButton:
             self.dragging = False
 
-            # 只有在当前显示的是 relax.gif 时才触发 interact.gif
-            if self.current_gif == self.relax_gif:
-                self.play_interact_gif()
+            if self.current_gif == self.move_gif:  # 如果当前是移动状态
+                self.change_state(self.relax_gif, None)  # 切换回站立状态
+            elif self.current_gif == self.relax_gif:  # 如果当前是站立状态
+                self.play_interact_gif()  # 播放交互动画
 
     def play_interact_gif(self):
         """播放 interact.gif（只播放一次）"""
